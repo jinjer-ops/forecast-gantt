@@ -27,7 +27,6 @@ if (!GAS_URL) {
 
 export const pollMs = Number(import.meta.env.VITE_POLL_MS ?? '15000')
 
-// 過去タスク一覧
 export async function listTasks(): Promise<Task[]> {
   if (!GAS_URL) throw new Error('VITE_GAS_URL が設定されていません')
 
@@ -49,7 +48,6 @@ export async function listTasks(): Promise<Task[]> {
   return json.tasks as Task[]
 }
 
-// チェック状況保存
 export async function saveTicks(rows: any[]): Promise<void> {
   if (!GAS_URL) throw new Error('VITE_GAS_URL が設定されていません')
 
