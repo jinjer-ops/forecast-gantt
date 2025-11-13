@@ -152,8 +152,8 @@ function Timeline({tasks}:{tasks:Task[]}) {
               </div>
               <div style={{position:'relative', height}}>
                 {lt.map((t, i) => {
-                  const s = new Date(t.Start+'T00:00:00')
-                  const e = new Date(t.End+'T00:00:00')
+                  const s = new Date(t.Start);
+                  const e = new Date(t.End);
                   const leftPct = (Math.ceil((+s-+START)/(24*60*60*1000))/totalDays)*100
                   const widthPct = (Math.max(1, Math.ceil((+e-+s)/(24*60*60*1000)))/totalDays)*100
                   const color = CAT[t.Category]?.color || '#6b7280'
