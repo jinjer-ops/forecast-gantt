@@ -89,16 +89,15 @@ function Legend(){
   )
 }
 
-function Timeline({tasks}:{tasks:Task[]}) {
+function Timeline({tasks}:{tasks:Task[]}){
   const end = new Date(START.getTime() + 26*WEEK)
   const totalDays = Math.ceil((+end-+START)/(24*60*60*1000))
   const weeks = Math.ceil(totalDays/7)
 
-  // 1週間80px幅＋左のラベル220px分を「中身の最小幅」にする
+  // 横スクロールで見切れ防止
   const minWidth = 220 + weeks * 80
 
   return (
-    // ★ここが横スクロールの箱
     <div style={{ overflowX: 'auto' }}>
       <div style={{ minWidth }}>
         <div style={{display:'grid', gridTemplateColumns: `220px repeat(${weeks}, 80px)`}}>
@@ -122,42 +121,29 @@ function Timeline({tasks}:{tasks:Task[]}) {
             )
           })}
         </div>
-
         {LANES.map(l => {
           const lt = tasks
             .filter(t => t.Workstream && l.startsWith(t.Workstream.split(' ')[0]))
             .sort((a,b)=> a.Start>b.Start?1:-1)
           const height = Math.max(40, lt.length*24 + 24)
-
           return (
-            <div
-              key={l}
-              style={{
-                display:'grid',
-                gridTemplateColumns: `220px 1fr`,
-                borderTop:'1px solid #f1f5f9'
-              }}
-            >
-              <div
-                style={{
-                  background:'#f8fafc',
-                  borderRight:'1px solid #e5e7eb',
-                  padding:8,
-                  fontWeight:600,
-                  position:'sticky',
-                  left:0
-                }}
-              >
+            <div key={l} style={{display:'grid', gridTemplateColumns: `220px 1fr`, borderTop:'1px solid #f1f5f9'}}>
+              <div style={{background:'#f8fafc', borderRight:'1px solid #e5e7eb', padding:8, fontWeight:600, position:'sticky', left:0}}>
                 {l}
               </div>
               <div style={{position:'relative', height}}>
                 {lt.map((t, i) => {
-                  const s = new Date(t.Start+'T00:00:00')
-                  const e = new Date(t.End+'T00:00:00')
-                  const leftPct = (Math.ceil((+s-+START)/(24*60*60*1000))/totalDays)*100
-                  const widthPct = (Math.max(1, Math.ceil((+e-+s)/(24*60*60*1000)))/totalDays)*100
-                  const color = CAT[t.Category]?.color || '#6b7280'
+                  // ★ ここを修正：'T00:00:00' を足さない
+                  const s = new Date(t.Start)
+                  const e = new Date(t.End)
 
+                  // 日付だけにそろえる（時間ズレ対策）
+                  const sDay = new Date(s.getFullYear(), s.getMonth(), s.getDate())
+                  const eDay = new Date(e.getFullYear(), e.getMonth(), e.getDate())
+
+                  const leftPct = (Math.ceil((+sDay-+START)/(24*60*60*1000))/totalDays)*100
+                  const widthPct = (Math.max(1, Math.ceil((+eDay-+sDay)/(24*60*60*1000)))/totalDays)*100
+                  const color = CAT[t.Category]?.color || '#6b7280'
                   return (
                     <div
                       key={t.Task}
@@ -178,7 +164,7 @@ function Timeline({tasks}:{tasks:Task[]}) {
                         boxShadow:'0 1px 2px rgba(0,0,0,0.1)'
                       }}
                     >
-                      {t.Task} ({t.Start}→{t.End})
+                      {t.Task} ({String(t.Start).slice(0,10)}→{String(t.End).slice(0,10)})
                     </div>
                   )
                 })}
