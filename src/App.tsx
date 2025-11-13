@@ -97,11 +97,42 @@ function Timeline({tasks}:{tasks:Task[]}){
   // 横スクロールで見切れ防止
   const minWidth = 220 + weeks * 80
 
+  // 今日の位置（タイムライン上の何%か）
+  const today = new Date()
+  const dayOffset = Math.floor((+today - +START)/(24*60*60*1000))
+  const clampedOffset = Math.min(Math.max(dayOffset, 0), totalDays)
+  const todayLeftPct = (clampedOffset / totalDays) * 100
+  
   return (
     <div style={{ overflowX: 'auto' }}>
-      <div style={{ minWidth }}>
+      <div style={{ minWidth, position:'relative' }}>
+        {/* 今日の縦線 */}
+        <div
+          style={{
+            position:'absolute',
+            top:0,
+            bottom:0,
+            left:`${todayLeftPct}%`,
+            width:2,
+            background:'rgba(239,68,68,0.9)', // 赤
+            pointerEvents:'none',
+            zIndex:4,
+          }}
+        />
         <div style={{display:'grid', gridTemplateColumns: `220px repeat(${weeks}, 80px)`}}>
-          <div style={{padding:'6px 8px', fontWeight:600}}>Timeline</div>
+          <div
+            style={{
+              padding:'6px 8px',
+              fontWeight:600,
+              position:'sticky',
+              left:0,
+              background:'#fff',
+              borderRight:'1px solid #e5e7eb',
+              zIndex:3,
+            }}
+          >
+            Timeline
+          </div>
           {Array.from({length:weeks}).map((_,i)=>{
             const w0 = new Date(START.getTime()+i*WEEK)
             const w1 = new Date(w0.getTime()+6*24*60*60*1000)
@@ -128,7 +159,19 @@ function Timeline({tasks}:{tasks:Task[]}){
           const height = Math.max(40, lt.length*24 + 24)
           return (
             <div key={l} style={{display:'grid', gridTemplateColumns: `220px 1fr`, borderTop:'1px solid #f1f5f9'}}>
-              <div style={{background:'#f8fafc', borderRight:'1px solid #e5e7eb', padding:8, fontWeight:600, position:'sticky', left:0}}>
+              <div
+                style={{
+                  background:'#f8fafc',
+                  borderRight:'1px solid #e5e7eb',
+                  padding:8,
+                  fontWeight:600,
+                  position:'sticky',
+                  left:0,
+                  zIndex:2,
+                }}
+              >
+                {l}
+              </div>
                 {l}
               </div>
               <div style={{position:'relative', height}}>
