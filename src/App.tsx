@@ -164,7 +164,7 @@ function Timeline({tasks}:{tasks:Task[]}){
                         boxShadow:'0 1px 2px rgba(0,0,0,0.1)'
                       }}
                     >
-                      {t.Task} ({String(t.Start).slice(0,10)}→{String(t.End).slice(0,10)})
+                      {t.Task} ({dateLabel(t.Start)}→{dateLabel(t.End)})
                     </div>
                   )
                 })}
