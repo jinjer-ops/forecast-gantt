@@ -161,8 +161,9 @@ function Timeline({ tasks, ticks }: { tasks: Task[]; ticks: Record<string, any> 
   const totalDays = Math.ceil((+end - +START) / (24 * 60 * 60 * 1000))
   const weeks = Math.ceil(totalDays / 7)
 
-  const minWidth = 220 + weeks * 80
-  const timelineWidth = weeks * 80
+  // ガント全体の幅をピッタリ指定（左220px + 週×80px）
+  const chartWidth = 220 + weeks * 80
+  const timelineWidth = chartWidth - 220
 
   // 今日の位置（タイムライン上のどこか）
   const today = new Date()
@@ -172,8 +173,9 @@ function Timeline({ tasks, ticks }: { tasks: Task[]; ticks: Record<string, any> 
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <div style={{ minWidth, position: 'relative' }}>
-        {/* 今日の縦線 */}
+      {/* ★ chartWidth を width に指定：右端に余白が出ない */}
+      <div style={{ width: chartWidth, position: 'relative' }}>
+        {/* 今日の縦線（zIndexを下げて左の固定領域より「下」に描画） */}
         <div
           style={{
             position: 'absolute',
@@ -181,9 +183,9 @@ function Timeline({ tasks, ticks }: { tasks: Task[]; ticks: Record<string, any> 
             bottom: 0,
             left: `${todayLeftPx}px`,
             width: 2,
-            background: 'rgba(239,68,68,0.9)', // 赤
+            background: 'rgba(239,68,68,0.9)',
             pointerEvents: 'none',
-            zIndex: 4,
+            zIndex: 1, // ← Timeline / Lane の zIndex(2,3)より小さく
           }}
         />
 
@@ -259,7 +261,7 @@ function Timeline({ tasks, ticks }: { tasks: Task[]; ticks: Record<string, any> 
                   const color = CAT[t.Category]?.color || '#6b7280'
 
                   const tick = ticks[t.Task] || {}
-                  const done = !!tick.Ship // 運用開始＝完了とみなす
+                  const done = !!tick.Ship // 運用開始＝完了
 
                   return (
                     <div
