@@ -216,4 +216,15 @@ function Checklist({tasks, ticks, setTicks}:{tasks:Task[], ticks:Record<string, 
 const th: React.CSSProperties = { padding:'8px', borderBottom:'1px solid #e5e7eb', textAlign:'left' }
 const td: React.CSSProperties = { padding:'8px', borderBottom:'1px solid #e5e7eb' }
 
-function fmt(d: Date){ return d.toISOString().slice(0,10) }
+function fmt(d:Date){
+  return d.toISOString().slice(0,10)
+}
+
+function dateLabel(v: any){
+  const d = new Date(v)
+  const y = d.getFullYear()
+  const m = String(d.getMonth()+1).padStart(2,'0')
+  const day = String(d.getDate()).padStart(2,'0')
+  return `${y}-${m}-${day}`
+}
+
