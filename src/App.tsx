@@ -89,38 +89,104 @@ function Legend(){
   )
 }
 
-function Timeline({tasks}:{tasks:Task[]}){
+function Timeline({tasks}:{tasks:Task[]}) {
   const end = new Date(START.getTime() + 26*WEEK)
   const totalDays = Math.ceil((+end-+START)/(24*60*60*1000))
   const weeks = Math.ceil(totalDays/7)
+
+  // 1週間80px幅＋左のラベル220px分を「中身の最小幅」にする
+  const minWidth = 220 + weeks * 80
+
   return (
-    <div>
-      <div style={{display:'grid', gridTemplateColumns: `220px repeat(${weeks}, 80px)`}}>
-        <div style={{padding:'6px 8px', fontWeight:600}}>Timeline</div>
-        {Array.from({length:weeks}).map((_,i)=>{
-          const w0 = new Date(START.getTime()+i*WEEK)
-          const w1 = new Date(w0.getTime()+6*24*60*60*1000)
-          return <div key={i} style={{borderLeft:'1px solid #e5e7eb', textAlign:'center', fontSize:11, color:'#475569', padding:'6px 0'}}>W{i+1} {fmt(w0).slice(5)}–{fmt(w1).slice(5)}</div>
+    // ★ここが横スクロールの箱
+    <div style={{ overflowX: 'auto' }}>
+      <div style={{ minWidth }}>
+        <div style={{display:'grid', gridTemplateColumns: `220px repeat(${weeks}, 80px)`}}>
+          <div style={{padding:'6px 8px', fontWeight:600}}>Timeline</div>
+          {Array.from({length:weeks}).map((_,i)=>{
+            const w0 = new Date(START.getTime()+i*WEEK)
+            const w1 = new Date(w0.getTime()+6*24*60*60*1000)
+            return (
+              <div
+                key={i}
+                style={{
+                  borderLeft:'1px solid #e5e7eb',
+                  textAlign:'center',
+                  fontSize:11,
+                  color:'#475569',
+                  padding:'6px 0'
+                }}
+              >
+                W{i+1} {fmt(w0).slice(5)}–{fmt(w1).slice(5)}
+              </div>
+            )
+          })}
+        </div>
+
+        {LANES.map(l => {
+          const lt = tasks
+            .filter(t => t.Workstream && l.startsWith(t.Workstream.split(' ')[0]))
+            .sort((a,b)=> a.Start>b.Start?1:-1)
+          const height = Math.max(40, lt.length*24 + 24)
+
+          return (
+            <div
+              key={l}
+              style={{
+                display:'grid',
+                gridTemplateColumns: `220px 1fr`,
+                borderTop:'1px solid #f1f5f9'
+              }}
+            >
+              <div
+                style={{
+                  background:'#f8fafc',
+                  borderRight:'1px solid #e5e7eb',
+                  padding:8,
+                  fontWeight:600,
+                  position:'sticky',
+                  left:0
+                }}
+              >
+                {l}
+              </div>
+              <div style={{position:'relative', height}}>
+                {lt.map((t, i) => {
+                  const s = new Date(t.Start+'T00:00:00')
+                  const e = new Date(t.End+'T00:00:00')
+                  const leftPct = (Math.ceil((+s-+START)/(24*60*60*1000))/totalDays)*100
+                  const widthPct = (Math.max(1, Math.ceil((+e-+s)/(24*60*60*1000)))/totalDays)*100
+                  const color = CAT[t.Category]?.color || '#6b7280'
+
+                  return (
+                    <div
+                      key={t.Task}
+                      style={{
+                        position:'absolute',
+                        top: 10 + i*22,
+                        left:`${leftPct}%`,
+                        width:`${widthPct}%`,
+                        height:16,
+                        background:color,
+                        borderRadius:8,
+                        color:'#fff',
+                        fontSize:10,
+                        padding:'0 8px',
+                        display:'flex',
+                        alignItems:'center',
+                        whiteSpace:'nowrap',
+                        boxShadow:'0 1px 2px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      {t.Task} ({t.Start}→{t.End})
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
         })}
       </div>
-      {LANES.map(l => {
-        const lt = tasks.filter(t => t.Workstream && l.startsWith(t.Workstream.split(' ')[0])).sort((a,b)=> a.Start>b.Start?1:-1)
-        const height = Math.max(40, lt.length*24 + 24)
-        return (
-          <div key={l} style={{display:'grid', gridTemplateColumns: `220px 1fr`, borderTop:'1px solid #f1f5f9'}}>
-            <div style={{background:'#f8fafc', borderRight:'1px solid #e5e7eb', padding:8, fontWeight:600, position:'sticky', left:0}}>{l}</div>
-            <div style={{position:'relative', height}}>
-              {lt.map((t, i) => {
-                const s = new Date(t.Start+'T00:00:00'); const e = new Date(t.End+'T00:00:00')
-                const leftPct = (Math.ceil((+s-+START)/(24*60*60*1000))/totalDays)*100
-                const widthPct = (Math.max(1, Math.ceil((+e-+s)/(24*60*60*1000)))/totalDays)*100
-                const color = CAT[t.Category]?.color || '#6b7280'
-                return <div key={t.Task} style={{position:'absolute', top: 10 + i*22, left:`${leftPct}%`, width:`${widthPct}%`, height:16, background:color, borderRadius:8, color:'#fff', fontSize:10, padding:'0 8px', display:'flex', alignItems:'center', whiteSpace:'nowrap', boxShadow:'0 1px 2px rgba(0,0,0,0.1)'}}>{t.Task} ({t.Start}→{t.End})</div>
-              })}
-            </div>
-          </div>
-        )
-      })}
     </div>
   )
 }
