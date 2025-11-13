@@ -196,8 +196,8 @@ function Checklist({tasks, ticks, setTicks}:{tasks:Task[], ticks:Record<string, 
                   <td style={td}>{t.Workstream}</td>
                   <td style={td}>{CAT[t.Category]?.label || t.Category}</td>
                   <td style={td}>{t.Task}</td>
-                  <td style={td}>{t.Start}</td>
-                  <td style={td}>{t.End}</td>
+                  <td style={td}>{dateLabel(t.Start)}</td>
+                  <td style={td}>{dateLabel(t.End)}</td>
                   {['Spec','Dev','Test','Ship'].map(k=> (
                     <td key={k} style={{...td, textAlign:'center'}}>
                       <input type="checkbox" checked={!!row[k]} onChange={e => setTicks((prev: any) => ({ ...prev, [t.Task]: { ...prev[t.Task], [k]: e.target.checked ? 1 : 0 } }))} />
